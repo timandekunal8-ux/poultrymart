@@ -5,7 +5,7 @@
 
 // Replace this with your business WhatsApp number.
 // Format: country code + number, without + or spaces.
-const WHATSAPP_NUMBER = "91XXXXXXXXXX";
+const WHATSAPP_NUMBER = "918149632676";
 
 // Sample products. Update prices before publishing.
 const products = [
