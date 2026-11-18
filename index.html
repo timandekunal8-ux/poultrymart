@@ -1,1 +1,111 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PoultryMart | Fresh From Farm</title>
+  <meta name="description" content="Shop fresh chicken and farm eggs at PoultryMart.">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+  <a href="#" class="logo" onclick="showPage('home')">
+    🐓 POULTRY<span>MART</span>
+  </a>
+
+  <nav class="navigation">
+    <button onclick="showPage('home')">Home</button>
+    <button onclick="showPage('shop')">Shop</button>
+    <button onclick="showPage('orders')">My Orders</button>
+    <button onclick="showPage('cart')">Cart (<span id="cartCount">0</span>)</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- HOME PAGE -->
+  <section id="homePage" class="page">
+
+    <div class="hero">
+      <div class="hero-text">
+        <span class="tagline">FRESHNESS YOU CAN TRUST</span>
+        <h1>Fresh From Farm<br>To Your Home.</h1>
+        <p>Quality chicken and farm fresh eggs delivered to your doorstep.</p>
+        <button class="primary-btn" onclick="showPage('shop')">
+          Shop Now →
+        </button>
+      </div>
+
+      <div class="hero-image">
+        <img src="https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=900" alt="Farm chickens">
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Welcome to PoultryMart</h2>
+      <p>Fresh products. Honest quality. Easy ordering.</p>
+      <button class="primary-btn" onclick="showPage('shop')">
+        Explore Products
+      </button>
+    </div>
+
+  </section>
+
+
+  <!-- SHOP PAGE -->
+  <section id="shopPage" class="page hidden">
+    <div class="section">
+      <h1>Our Products</h1>
+      <p>Choose your favourite farm fresh products.</p>
+      <div id="productList" class="product-grid"></div>
+    </div>
+  </section>
+
+
+  <!-- CART PAGE -->
+  <section id="cartPage" class="page hidden">
+    <div class="section">
+      <h1>My Cart</h1>
+      <div id="cartItems"></div>
+      <h2 id="cartTotal">Total: ₹0</h2>
+
+      <div class="checkout-form">
+        <h2>Delivery Details</h2>
+
+        <input id="customerName" placeholder="Your full name">
+        <input id="customerPhone" type="tel" placeholder="Mobile number">
+        <textarea id="customerAddress" placeholder="Full delivery address"></textarea>
+
+        <button class="whatsapp-btn" onclick="placeOrder()">
+          Order on WhatsApp
+        </button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- MY ORDERS PAGE -->
+  <section id="ordersPage" class="page hidden">
+    <div class="section">
+      <h1>My Orders</h1>
+      <div id="orderList"></div>
+    </div>
+  </section>
+
+</main>
+
+
+<footer>
+  <h2>🐓 POULTRYMART</h2>
+  <p>Fresh From Farm. Delivered With Care.</p>
+  <p>© 2026 PoultryMart. All rights reserved.</p>
+</footer>
+
+<script src="script.js"></script>
+
+</body>
+          </html>
+
