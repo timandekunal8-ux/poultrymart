@@ -7,9 +7,12 @@ import {
 
 import {
   doc,
-  setDoc
+  setDoc,
+  collection,
+  getDocs,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
-
 // Connect customer anonymously to Firebase
 window.firebaseCustomerUid = null;
 
