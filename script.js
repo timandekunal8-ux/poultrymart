@@ -206,17 +206,12 @@ function getOrders() {
     return [];
   }
 }
-
 async function renderOrders() {
   const container = document.getElementById("orderList");
 
   container.innerHTML = "<p>Loading your orders...</p>";
 
   try {
-    if (typeof window.getCustomerOrdersFromFirebase !== "function") {
-      throw new Error("Order service is still loading. Please refresh.");
-    }
-
     const orders = await window.getCustomerOrdersFromFirebase();
 
     if (orders.length === 0) {
@@ -237,10 +232,12 @@ async function renderOrders() {
     }).join("");
 
   } catch (error) {
-  console.error("Order saving error:", error);
-  alert("Firebase Error: " + error.code + "\n" + error.message);
-  return;
+    console.error("My Orders error:", error);
+    container.innerHTML =
+      "<p>Unable to load orders. Please refresh.</p>";
   }
+}
+
 // =====================================
 // WHATSAPP ORDER
 // =====================================
