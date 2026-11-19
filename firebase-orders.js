@@ -53,12 +53,9 @@ window.saveOrderToFirebase = async function(order) {
   console.log("Order saved to Firebase");
 };
 // Get customer's latest orders from Firebase
-window.getCustomerOrdersFromFirebase = async function() {
-  const uid = window.firebaseCustomerUid;
 
-  if (!uid) {
-    throw new Error("Customer is not connected to Firebase.");
-  }
+window.getCustomerOrdersFromFirebase = async function() {
+  const uid = await window.firebaseCustomerReady;
 
   const ordersQuery = query(
     collection(db, "orders"),
