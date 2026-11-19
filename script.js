@@ -43,21 +43,40 @@ try {
 // PAGE NAVIGATION
 // =====================================
 
+
 function showPage(page) {
   const pages = ["home", "shop", "cart", "orders"];
 
+  if (!pages.includes(page)) {
+    console.error("Invalid page:", page);
+    return;
+  }
+
   pages.forEach(function(name) {
-    document.getElementById(name + "Page").classList.add("hidden");
+    const section = document.getElementById(name + "Page");
+
+    if (section) {
+      section.classList.add("hidden");
+    }
   });
 
-  document.getElementById(page + "Page").classList.remove("hidden");
+  const selectedPage = document.getElementById(page + "Page");
+
+  if (!selectedPage) {
+    console.error("Page not found:", page + "Page");
+    return;
+  }
+
+  selectedPage.classList.remove("hidden");
 
   if (page === "shop") renderProducts();
   if (page === "cart") renderCart();
   if (page === "orders") renderOrders();
 
   window.scrollTo(0, 0);
-}
+    }
+    
+
 
 // =====================================
 // PRODUCT DISPLAY
