@@ -26,32 +26,32 @@ window.firebaseCustomerReady = (async function() {
       user = result.user;
     }
 
-    window.firebaseCustomerUid = user.uid;
-    console.log("Customer Firebase UID:", user.uid);
+    window.firebaseCustomerUid = null;
 
-    return user.uid;
+window.firebaseCustomerReady = new Promise((resolve, reject) => {
+  let unsubscribe;
 
-  } catch (error) {
-    console.error("Firebase login error:", error);
-    throw error;
-  }
-})();
-window.saveOrderToFirebase = async function(order) {
-  try {
-    const uid = await window.firebaseCustomerReady;
+  unsubscribe = onAuthStateChanged(auth, async (user) => {
+    unsubscribe();
 
-    await setDoc(doc(db, "orders", String(order.id)), {
-      ...order,
-      customerUid: uid
-    });
+    try {
+      if (!user) {
+        const result = await signInAnonymously(auth);
+        user = result.user;
+      }
 
-    console.log("Order saved to Firebase");
+      window.firebaseCustomerUid = user.uid;
 
-  } catch (error) {
-    console.error("Firebase order saving failed:", error);
-    throw error;
-  }
-};
+      console.log("Customer Firebase UID:", user.uid);
+
+      resolve(user.uid);
+
+    } catch (error) {
+      console.error("Firebase login error:", error);
+      reject(error);
+    }
+  });
+});
 // Save customer order to Firestore
 
 // Get customer's latest orders from Firebase
