@@ -14,7 +14,7 @@ const products = [
     name: "Fresh desi Chicken",
     price: 700,
     unit: "kg",
-    image: https://kommodo.ai/i/mTqBrIW18lMPGPmomSeD
+    image: https://share.google/8HrvlcquCtUx3zvhX
   },
   {
     id: 2,
