@@ -284,7 +284,15 @@ function placeOrder() {
     alert("Unable to save your order on this device.");
     return;
   }
+  if (typeof window.saveOrderToFirebase !== "function") {
+    alert("Order service is loading. Please try again.");
+    return;
+  }
 
+  window.saveOrderToFirebase(order).catch(function(error) {
+    console.error("Firebase order error:", error);
+    alert("Order could not be sent to the admin system. Please try again.");
+  });
   let message = "NEW POULTRYMART ORDER\n\n";
   message += "Order ID: " + order.id + "\n";
   message += "Name: " + name + "\n";
