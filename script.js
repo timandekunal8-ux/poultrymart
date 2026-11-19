@@ -302,10 +302,7 @@ async function placeOrder() {
   return;
   }
 
-  window.saveOrderToFirebase(order).catch(function(error) {
-    console.error("Firebase order error:", error);
-    alert("Order could not be sent to the admin system. Please try again.");
-  });
+  
   let message = "NEW POULTRYMART ORDER\n\n";
   message += "Order ID: " + order.id + "\n";
   message += "Name: " + name + "\n";
