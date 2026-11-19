@@ -58,7 +58,7 @@ window.firebaseCustomerReady = new Promise((resolve, reject) => {
 
 window.getCustomerOrdersFromFirebase = async function() {
   const uid = await window.firebaseCustomerReady;
-
+alert("Your current customer ID: " + uid);
   const ordersQuery = query(
     collection(db, "orders"),
     where("customerUid", "==", uid)
