@@ -15,15 +15,27 @@ import {
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 // Connect customer anonymously to Firebase
 window.firebaseCustomerUid = null;
+window.firebaseCustomerUid = null;
 
-signInAnonymously(auth)
-  .then((result) => {
-    window.firebaseCustomerUid = result.user.uid;
-    console.log("Firebase customer connected");
-  })
-  .catch((error) => {
+window.firebaseCustomerReady = (async function() {
+  try {
+    let user = auth.currentUser;
+
+    if (!user) {
+      const result = await signInAnonymously(auth);
+      user = result.user;
+    }
+
+    window.firebaseCustomerUid = user.uid;
+    console.log("Customer Firebase UID:", user.uid);
+
+    return user.uid;
+
+  } catch (error) {
     console.error("Firebase login error:", error);
-  });
+    throw error;
+  }
+})();
 
 // Save customer order to Firestore
 window.saveOrderToFirebase = async function(order) {
