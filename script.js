@@ -207,28 +207,41 @@ function getOrders() {
   }
 }
 
-function renderOrders() {
-  const orders = getOrders();
+async function renderOrders() {
   const container = document.getElementById("orderList");
 
-  if (orders.length === 0) {
-    container.innerHTML = "<p>No orders yet.</p>";
-    return;
+  container.innerHTML = "<p>Loading your orders...</p>";
+
+  try {
+    if (typeof window.getCustomerOrdersFromFirebase !== "function") {
+      throw new Error("Order service is still loading. Please refresh.");
+    }
+
+    const orders = await window.getCustomerOrdersFromFirebase();
+
+    if (orders.length === 0) {
+      container.innerHTML = "<p>No orders yet.</p>";
+      return;
+    }
+
+    container.innerHTML = orders.map(function(order) {
+      return `
+        <div class="order-card">
+          <h3>Order ${order.id}</h3>
+          <p>Date: ${order.date}</p>
+          <p>Customer: ${order.name}</p>
+          <p>Total: ₹${order.total}</p>
+          <p><strong>Status: ${order.status}</strong></p>
+        </div>
+      `;
+    }).join("");
+
+  } catch (error) {
+    console.error("My Orders error:", error);
+    container.innerHTML =
+      "<p>Unable to load orders. Please refresh and try again.</p>";
   }
-
-  container.innerHTML = orders.map(function(order) {
-    return `
-      <div class="order-card">
-        <h3>Order ${order.id}</h3>
-        <p>Date: ${order.date}</p>
-        <p>Customer: ${order.name}</p>
-        <p>Total: ₹${order.total}</p>
-        <p>Status: ${order.status}</p>
-      </div>
-    `;
-  }).join("");
 }
-
 // =====================================
 // WHATSAPP ORDER
 // =====================================
