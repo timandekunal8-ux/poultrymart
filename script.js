@@ -237,11 +237,10 @@ async function renderOrders() {
     }).join("");
 
   } catch (error) {
-    console.error("My Orders error:", error);
-    container.innerHTML =
-      "<p>Unable to load orders. Please refresh and try again.</p>";
+  console.error("Order saving error:", error);
+  alert("Firebase Error: " + error.code + "\n" + error.message);
+  return;
   }
-}
 // =====================================
 // WHATSAPP ORDER
 // =====================================
