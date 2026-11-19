@@ -125,9 +125,9 @@
       }
 
       const orderList = snapshot.docs.map(item => ({
-        id: item.id,
-        ...item.data()
-      }));
+  ...item.data(),
+  id: item.id
+}));
 
       orderList.sort((a, b) =>
         String(b.date || "").localeCompare(String(a.date || ""))
