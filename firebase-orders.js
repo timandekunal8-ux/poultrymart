@@ -36,22 +36,24 @@ window.firebaseCustomerReady = (async function() {
     throw error;
   }
 })();
-
-// Save customer order to Firestore
 window.saveOrderToFirebase = async function(order) {
-  const uid = window.firebaseCustomerUid;
+  try {
+    const uid = await window.firebaseCustomerReady;
 
-  if (!uid) {
-    throw new Error("Firebase is still connecting. Please try again.");
+    await setDoc(doc(db, "orders", String(order.id)), {
+      ...order,
+      customerUid: uid
+    });
+
+    console.log("Order saved to Firebase");
+
+  } catch (error) {
+    console.error("Firebase order saving failed:", error);
+    throw error;
   }
-
-  await setDoc(doc(db, "orders", String(order.id)), {
-    ...order,
-    customerUid: uid
-  });
-
-  console.log("Order saved to Firebase");
 };
+// Save customer order to Firestore
+
 // Get customer's latest orders from Firebase
 
 window.getCustomerOrdersFromFirebase = async function() {
