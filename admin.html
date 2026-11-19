@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PoultryMart Admin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 850px;
+      margin: 30px auto;
+      background: white;
+      padding: 22px;
+      border-radius: 12px;
+    }
+    input, button, select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 6px;
+    }
+    input, select { border: 1px solid #ccc; }
+    button {
+      background: #174d2b;
+      color: white;
+      border: 0;
+      cursor: pointer;
+    }
+    .order {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 8px;
+    }
+    #dashboard { display: none; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>POULTRYMART ADMIN</h1>
+
+  <section id="login">
+    <h2>Admin Login</h2>
+    <input id="email" type="email" placeholder="Admin email">
+    <input id="password" type="password" placeholder="Admin password">
+    <button id="loginButton">Login</button>
+    <p id="message"></p>
+  </section>
+
+  <section id="dashboard">
+    <h2>Order Management</h2>
+    <button id="refreshButton">Refresh Orders</button>
+    <button id="logoutButton">Logout</button>
+    <div id="orders">Loading orders...</div>
+  </section>
+</div>
+
+<script type="module">
+  import { auth, db } from "./firebase.js";
+  import {
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+
+  import {
+    collection,
+    getDocs,
+    doc,
+    updateDoc
+  } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+
+  const ADMIN_UID = "0VBU9iMTm7dp0xYa8YiwVEu2AFx1";
+
+  const login = document.getElementById("login");
+  const dashboard = document.getElementById("dashboard");
+  const message = document.getElementById("message");
+  const ordersBox = document.getElementById("orders");
+
+  document.getElementById("loginButton").onclick = async () => {
+    try {
+      await signInWithEmailAndPassword(
+        auth,
+        document.getElementById("email").value.trim(),
+        document.getElementById("password").value
+      );
+    } catch (error) {
+      message.textContent = "Login failed: " + error.message;
+    }
+  };
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user && user.uid === ADMIN_UID) {
+      login.style.display = "none";
+      dashboard.style.display = "block";
+      loadOrders();
+    } else {
+      dashboard.style.display = "none";
+      login.style.display = "block";
+
+      if (user) {
+        message.textContent = "This account is not an administrator.";
+        await signOut(auth);
+      }
+    }
+  });
+
+  async function loadOrders() {
+    ordersBox.textContent = "Loading orders...";
+
+    try {
+      const snapshot = await getDocs(collection(db, "orders"));
+      ordersBox.replaceChildren();
+
+      if (snapshot.empty) {
+        ordersBox.textContent = "No online orders yet.";
+        return;
+      }
+
+      const orderList = snapshot.docs.map(item => ({
+        id: item.id,
+        ...item.data()
+      }));
+
+      orderList.sort((a, b) =>
+        String(b.date || "").localeCompare(String(a.date || ""))
+      );
+
+      orderList.forEach(order => {
+        const card = document.createElement("div");
+        card.className = "order";
+
+        const heading = document.createElement("h3");
+        heading.textContent = "Order #" + order.id;
+        card.appendChild(heading);
+
+        ["name", "phone", "address", "total", "date"].forEach(key => {
+          const p = document.createElement("p");
+          p.textContent = key.toUpperCase() + ": " + (order[key] ?? "");
+          card.appendChild(p);
+        });
+
+        const status = document.createElement("select");
+        [
+          "WhatsApp confirmation pending",
+          "Confirmed",
+          "Preparing",
+          "Out for Delivery",
+          "Delivered",
+          "Cancelled"
+        ].forEach(value => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value;
+          status.appendChild(option);
+        });
+
+        status.value = [
+          "WhatsApp confirmation pending",
+          "Confirmed",
+          "Preparing",
+          "Out for Delivery",
+          "Delivered",
+          "Cancelled"
+        ].includes(order.status) ? order.status : "WhatsApp confirmation pending";
+
+        const save = document.createElement("button");
+        save.textContent = "Update Order Status";
+
+        save.onclick = async () => {
+          try {
+            await updateDoc(doc(db, "orders", order.id), {
+              status: status.value
+            });
+            alert("Order status updated!");
+          } catch (error) {
+            alert("Update failed: " + error.message);
+          }
+        };
+
+        card.append(status, save);
+        ordersBox.appendChild(card);
+      });
+
+    } catch (error) {
+      ordersBox.textContent = "Could not load orders: " + error.message;
+    }
+  }
+
+  document.getElementById("refreshButton").onclick = loadOrders;
+
+  document.getElementById("logoutButton").onclick = async () => {
+    await signOut(auth);
+  };
+</script>
+</body>
+</html>
