@@ -11,24 +11,18 @@ const WHATSAPP_NUMBER = "918149632676";
 const products = [
   {
     id: 1,
-    name: "Fresh Farm Chicken",
-    price: 250,
+    name: "Fresh desi Chicken",
+    price: 700,
     unit: "kg",
     image: "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=600"
   },
   {
     id: 2,
     name: "Brown Farm Eggs",
-    price: 20,
+    price: 15,
     unit: "piece",
     image: "https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=600"
-  },
-  {
-    id: 3,
-    name: "Premium Chicken",
-    price: 280,
-    unit: "kg",
-    image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=600"
+  
   }
 ];
 
