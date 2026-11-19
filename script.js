@@ -233,7 +233,7 @@ function renderOrders() {
 // WHATSAPP ORDER
 // =====================================
 
-function placeOrder() {
+async function placeOrder() {
   if (cart.length === 0) {
     alert("Your cart is empty!");
     return;
