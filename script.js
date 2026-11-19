@@ -279,14 +279,18 @@ async function placeOrder() {
   orders.unshift(order);
 
   try {
-    localStorage.setItem("poultryOrders", JSON.stringify(orders));
-  } catch {
-    alert("Unable to save your order on this device.");
-    return;
-  }
+  localStorage.setItem("poultryOrders", JSON.stringify(orders));
+
   if (typeof window.saveOrderToFirebase !== "function") {
-    alert("Order service is loading. Please try again.");
-    return;
+    throw new Error("Firebase service not loaded.");
+  }
+
+  await window.saveOrderToFirebase(order);
+
+} catch (error) {
+  console.error("Order saving error:", error);
+  alert("Order could not be saved. Please try again.");
+  return;
   }
 
   window.saveOrderToFirebase(order).catch(function(error) {
