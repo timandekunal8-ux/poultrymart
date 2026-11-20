@@ -1,20 +1,27 @@
 
-// =====================================
-// POULTRYMART - MAIN SETTINGS
-// =====================================
+// ==================================================
+// POULTRYMART - COMPLETE SCRIPT.JS
+// ==================================================
 
-// Replace this with your business WhatsApp number.
-// Format: country code + number, without + or spaces.
+
+// ==================================================
+// 1. BUSINESS SETTINGS
+// ==================================================
+
 const WHATSAPP_NUMBER = "918149632676";
 
-// Sample products. Update prices before publishing.
+
+// ==================================================
+// 2. PRODUCTS
+// ==================================================
+
 const products = [
   {
     id: 1,
     name: "Fresh desi Chicken",
     price: 700,
     unit: "kg",
-    image: "file_00000000cf14821183f6da982d31bf25.png"
+    image: "images/chicken.png"
   },
   {
     id: 2,
@@ -22,101 +29,197 @@ const products = [
     price: 15,
     unit: "piece",
     image: "https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=600"
-  
   }
 ];
 
-// =====================================
-// LOCAL DATA
-// =====================================
+
+// ==================================================
+// 3. GLOBAL VARIABLES
+// ==================================================
 
 let cart = [];
 
-try {
-  cart = JSON.parse(localStorage.getItem("poultryCart")) || [];
-  if (!Array.isArray(cart)) cart = [];
-} catch {
-  cart = [];
+const shopQuantities = {};
+
+
+// ==================================================
+// 4. LOAD CART
+// ==================================================
+
+function loadCart() {
+  try {
+    const saved = localStorage.getItem("poultryCart");
+    cart = saved ? JSON.parse(saved) : [];
+
+    if (!Array.isArray(cart)) {
+      cart = [];
+    }
+  } catch (error) {
+    console.error("Cart loading error:", error);
+    cart = [];
+  }
 }
 
-// =====================================
-// PAGE NAVIGATION
-// =====================================
+loadCart();
 
+
+// ==================================================
+// 5. SAVE CART
+// ==================================================
+
+function saveCart() {
+  localStorage.setItem(
+    "poultryCart",
+    JSON.stringify(cart)
+  );
+
+  updateCartCount();
+}
+
+
+// ==================================================
+// 6. CART COUNT
+// ==================================================
+
+function updateCartCount() {
+  const count = cart.reduce(
+    (sum, item) => sum + Number(item.quantity || 0),
+    0
+  );
+
+  ["cartCount", "cart-count"].forEach(function(id) {
+    const element = document.getElementById(id);
+
+    if (element) {
+      element.textContent = count;
+    }
+  });
+}
+
+
+// ==================================================
+// 7. PAGE NAVIGATION
+// ==================================================
 
 function showPage(page) {
-  const pages = ["home", "shop", "cart", "orders"];
 
-  if (!pages.includes(page)) {
-    console.error("Invalid page:", page);
-    return;
-  }
+  const pages = [
+    "homePage",
+    "shopPage",
+    "cartPage",
+    "ordersPage"
+  ];
 
-  pages.forEach(function(name) {
-    const section = document.getElementById(name + "Page");
+  pages.forEach(function(id) {
+    const element = document.getElementById(id);
 
-    if (section) {
-      section.classList.add("hidden");
+    if (element) {
+      element.classList.add("hidden");
     }
   });
 
   const selectedPage = document.getElementById(page + "Page");
 
-  if (!selectedPage) {
-    console.error("Page not found:", page + "Page");
+  if (selectedPage) {
+    selectedPage.classList.remove("hidden");
+  }
+
+  if (page === "shop") {
+    renderProducts();
+  }
+
+  if (page === "cart") {
+    renderCart();
+  }
+
+  if (page === "orders") {
+    renderOrders();
+  }
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+
+// ==================================================
+// 8. DISPLAY PRODUCTS
+// ==================================================
+
+function renderProducts() {
+
+  const list = document.getElementById("productList");
+
+  if (!list) {
+    console.error("productList not found in HTML.");
     return;
   }
 
-  selectedPage.classList.remove("hidden");
-
-  if (page === "shop") renderProducts();
-  if (page === "cart") renderCart();
-  if (page === "orders") renderOrders();
-
-  window.scrollTo(0, 0);
-    }
-    
-
- // =====================================
- // PRODUCT DISPLAY
- // =====================================
-
-const shopQuantities = {};
-
-function renderProducts() {
-  const list = document.getElementById("productList");
-
   list.innerHTML = products.map(function(product) {
+
+    const quantity = shopQuantities[product.id] || 1;
+
     return `
       <div class="product-card">
-        <img src="${product.image}" alt="${product.name}">
+
+        <img
+          src="${product.image}"
+          alt="${product.name}"
+          onerror="this.style.display='none'"
+        >
+
         <div class="product-info">
+
           <h3>${product.name}</h3>
-          <p>Fresh quality poultry product</p>
+
+          <p>Fresh quality farm product</p>
 
           <div class="price">
             ₹${product.price} / ${product.unit}
           </div>
 
           <div class="quantity-selector">
-            <button onclick="changeShopQuantity(${product.id}, -1)">−</button>
+
+            <button
+              type="button"
+              onclick="changeShopQuantity(${product.id}, -1)">
+              −
+            </button>
+
             <span id="shopQty-${product.id}">
-              ${shopQuantities[product.id] || 1}
+              ${quantity}
             </span>
-            <button onclick="changeShopQuantity(${product.id}, 1)">+</button>
+
+            <button
+              type="button"
+              onclick="changeShopQuantity(${product.id}, 1)">
+              +
+            </button>
+
           </div>
 
-          <button class="add-btn"
+          <button
+            type="button"
+            class="add-btn"
             onclick="addSelectedQuantity(${product.id})">
             Add to Cart
           </button>
+
         </div>
       </div>
     `;
+
   }).join("");
 }
 
+
+// ==================================================
+// 9. CHANGE SHOP QUANTITY
+// ==================================================
+
 function changeShopQuantity(id, amount) {
+
   if (!shopQuantities[id]) {
     shopQuantities[id] = 1;
   }
@@ -133,17 +236,27 @@ function changeShopQuantity(id, amount) {
   }
 }
 
+
+// ==================================================
+// 10. ADD PRODUCT TO CART
+// ==================================================
+
 function addSelectedQuantity(id) {
-  const quantity = shopQuantities[id] || 1;
 
   const product = products.find(item => item.id === id);
+
   if (!product) return;
+
+  const quantity = shopQuantities[id] || 1;
 
   const existing = cart.find(item => item.id === id);
 
   if (existing) {
+
     existing.quantity += quantity;
+
   } else {
+
     cart.push({
       id: product.id,
       name: product.name,
@@ -151,261 +264,396 @@ function addSelectedQuantity(id) {
       unit: product.unit,
       quantity: quantity
     });
+
   }
 
   saveCart();
 
   shopQuantities[id] = 1;
+
   renderProducts();
 
   alert(quantity + " " + product.unit + " added to cart!");
 }
 
 
-
-  
-
-
-// =====================================
-// CART
-// =====================================
-
-function saveCart() {
-  localStorage.setItem("poultryCart", JSON.stringify(cart));
-  updateCartCount();
-}
-
-function addToCart(id) {
-  const product = products.find(function(item) {
-    return item.id === id;
-  });
-
-  if (!product) return;
-
-  const existing = cart.find(function(item) {
-    return item.id === id;
-  });
-
-  if (existing) {
-    existing.quantity += 1;
-  } else {
-    cart.push({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      unit: product.unit,
-      quantity: 1
-    });
-  }
-
-  saveCart();
-  alert("Product added to cart!");
-}
-
-function updateCartCount() {
-  const count = cart.reduce(function(total, item) {
-    return total + item.quantity;
-  }, 0);
-
-  document.getElementById("cartCount").textContent = count;
-}
+// ==================================================
+// 11. DISPLAY CART
+// ==================================================
 
 function renderCart() {
+
   const container = document.getElementById("cartItems");
 
+  const totalElement = document.getElementById("cartTotal");
+
+  if (!container) return;
+
   if (cart.length === 0) {
-    container.innerHTML = "<p>Your cart is empty. Visit our shop!</p>";
-    document.getElementById("cartTotal").textContent = "Total: ₹0";
+
+    container.innerHTML = "<p>Your cart is empty.</p>";
+
+    if (totalElement) {
+      totalElement.textContent = "₹0";
+    }
+
+    updateCartCount();
+
     return;
   }
 
+  let total = 0;
+
   container.innerHTML = cart.map(function(item) {
+
+    const itemTotal = item.price * item.quantity;
+
+    total += itemTotal;
+
     return `
       <div class="cart-item">
-        <h3>${item.name}</h3>
-        <p>₹${item.price} / ${item.unit}</p>
-        <button onclick="changeQuantity(${item.id}, -1)">−</button>
-        ${item.quantity}
-        <button onclick="changeQuantity(${item.id}, 1)">+</button>
-        <p>Subtotal: ₹${item.price * item.quantity}</p>
+
+        <div>
+          <h3>${item.name}</h3>
+          <p>₹${item.price} / ${item.unit}</p>
+          <p>Subtotal: ₹${itemTotal}</p>
+        </div>
+
+        <div class="quantity-selector">
+
+          <button onclick="changeQuantity(${item.id}, -1)">
+            −
+          </button>
+
+          <span>${item.quantity}</span>
+
+          <button onclick="changeQuantity(${item.id}, 1)">
+            +
+          </button>
+
+        </div>
+
+        <button onclick="removeFromCart(${item.id})">
+          Remove
+        </button>
+
       </div>
     `;
+
   }).join("");
 
-  const total = cart.reduce(function(sum, item) {
-    return sum + item.price * item.quantity;
-  }, 0);
+  if (totalElement) {
+    totalElement.textContent = "₹" + total;
+  }
 
-  document.getElementById("cartTotal").textContent = "Total: ₹" + total;
+  updateCartCount();
 }
 
+
+// ==================================================
+// 12. CHANGE CART QUANTITY
+// ==================================================
+
 function changeQuantity(id, amount) {
-  const item = cart.find(function(product) {
-    return product.id === id;
-  });
+
+  const item = cart.find(item => item.id === id);
 
   if (!item) return;
 
   item.quantity += amount;
 
   if (item.quantity <= 0) {
-    cart = cart.filter(function(product) {
-      return product.id !== id;
-    });
+    cart = cart.filter(item => item.id !== id);
   }
 
   saveCart();
+
   renderCart();
 }
 
-// =====================================
-// ORDER HISTORY
-// =====================================
+
+// ==================================================
+// 13. REMOVE CART ITEM
+// ==================================================
+
+function removeFromCart(id) {
+
+  cart = cart.filter(item => item.id !== id);
+
+  saveCart();
+
+  renderCart();
+}
+
+
+// ==================================================
+// 14. GET LOCAL ORDERS
+// ==================================================
 
 function getOrders() {
+
   try {
-    const orders = JSON.parse(localStorage.getItem("poultryOrders")) || [];
-    return Array.isArray(orders) ? orders : [];
-  } catch {
+    return JSON.parse(
+      localStorage.getItem("poultryOrders") || "[]"
+    );
+  } catch (error) {
     return [];
   }
 }
+
+
+// ==================================================
+// 15. DISPLAY MY ORDERS
+// ==================================================
+
 async function renderOrders() {
-  const container = document.getElementById("orderList");
+
+  const container = document.getElementById("ordersList");
+
+  if (!container) return;
 
   container.innerHTML = "<p>Loading your orders...</p>";
 
   try {
-    const orders = await window.getCustomerOrdersFromFirebase();
 
-    if (orders.length === 0) {
-      container.innerHTML = "<p>No orders yet.</p>";
+    if (
+      typeof window.getCustomerOrdersFromFirebase !== "function"
+    ) {
+      throw new Error("Firebase order service is not loaded.");
+    }
+
+    const orders =
+      await window.getCustomerOrdersFromFirebase();
+
+    if (!orders.length) {
+
+      container.innerHTML = "<p>No orders found.</p>";
+
       return;
     }
 
     container.innerHTML = orders.map(function(order) {
+
+      const items = Array.isArray(order.items)
+        ? order.items
+        : [];
+
       return `
         <div class="order-card">
-          <h3>Order ${order.id}</h3>
-          <p>Date: ${order.date}</p>
-          <p>Customer: ${order.name}</p>
-          <p>Total: ₹${order.total}</p>
-          <p><strong>Status: ${order.status}</strong></p>
+
+          <h3>Order #${order.id}</h3>
+
+          <p><strong>Name:</strong> ${order.name || ""}</p>
+
+          <p><strong>Phone:</strong> ${order.phone || ""}</p>
+
+          <p><strong>Address:</strong> ${order.address || ""}</p>
+
+          <p><strong>Status:</strong> ${order.status || "Pending"}</p>
+
+          <h4>Items</h4>
+
+          ${items.map(item => `
+            <p>
+              ${item.name} × ${item.quantity} ${item.unit}
+            </p>
+          `).join("")}
+
+          <h3>Total: ₹${order.total}</h3>
+
         </div>
       `;
+
     }).join("");
 
   } catch (error) {
-    console.error("My Orders error:", error);
+
+    console.error("Orders loading error:", error);
+
     container.innerHTML =
-      "<p>Unable to load orders. Please refresh.</p>";
+      "<p>Unable to load orders. Please refresh and try again.</p>";
+
   }
 }
 
-// =====================================
-// WHATSAPP ORDER
-// =====================================
+
+// ==================================================
+// 16. PLACE ORDER
+// ==================================================
 
 async function placeOrder() {
+
   if (cart.length === 0) {
+
     alert("Your cart is empty!");
+
     return;
   }
 
-  if (!/^91\d{10}$/.test(WHATSAPP_NUMBER)) {
-    alert("Please configure your business WhatsApp number in script.js first.");
+  const nameElement = document.getElementById("customerName");
+  const phoneElement = document.getElementById("customerPhone");
+  const addressElement = document.getElementById("customerAddress");
+
+  if (!nameElement || !phoneElement || !addressElement) {
+
+    alert("Customer order form fields are missing from HTML.");
+
     return;
   }
 
-  const name = document.getElementById("customerName").value.trim();
-  const phone = document.getElementById("customerPhone").value.trim();
-  const address = document.getElementById("customerAddress").value.trim();
+  const name = nameElement.value.trim();
+  const phone = phoneElement.value.trim();
+  const address = addressElement.value.trim();
 
   if (!name || !phone || !address) {
-    alert("Please complete all delivery details.");
+
+    alert("Please enter your name, phone number and address.");
+
     return;
   }
 
-  if (!/^\d{10}$/.test(phone)) {
-    alert("Please enter a valid 10-digit mobile number.");
+  if (!/^[6-9]\d{9}$/.test(phone)) {
+
+    alert("Please enter a valid 10-digit Indian mobile number.");
+
     return;
   }
 
   const total = cart.reduce(function(sum, item) {
+
     return sum + item.price * item.quantity;
+
   }, 0);
 
   const order = {
+
     id: Date.now(),
-    date: new Date().toLocaleString("en-IN"),
+
     name: name,
+
     phone: phone,
+
     address: address,
-    items: cart.map(function(item) {
-      return {...item};
-    }),
+
+    items: cart.map(item => ({ ...item })),
+
     total: total,
-    status: "WhatsApp confirmation pending"
+
+    status: "WhatsApp confirmation pending",
+
+    date: new Date().toLocaleString("en-IN")
+
   };
 
-  const orders = getOrders();
-  orders.unshift(order);
-
   try {
-  localStorage.setItem("poultryOrders", JSON.stringify(orders));
 
-  if (typeof window.saveOrderToFirebase !== "function") {
-    throw new Error("Firebase service not loaded.");
+    if (typeof window.saveOrderToFirebase !== "function") {
+
+      throw new Error("Firebase order service is not loaded.");
+
+    }
+
+    // SAVE ORDER TO FIREBASE
+    await window.saveOrderToFirebase(order);
+
+
+    // SAVE LOCAL ORDER HISTORY
+    const previousOrders = getOrders();
+
+    previousOrders.unshift(order);
+
+    localStorage.setItem(
+      "poultryOrders",
+      JSON.stringify(previousOrders)
+    );
+
+
+    // CREATE WHATSAPP MESSAGE
+    let message = "POULTRYMART ORDER\n\n";
+
+    message += "Order ID: " + order.id + "\n";
+
+    message += "Name: " + name + "\n";
+
+    message += "Phone: " + phone + "\n";
+
+    message += "Address: " + address + "\n\n";
+
+    message += "ORDER ITEMS:\n";
+
+    order.items.forEach(function(item) {
+
+      message +=
+        item.name +
+        " x " +
+        item.quantity +
+        " " +
+        item.unit +
+        " = ₹" +
+        (item.price * item.quantity) +
+        "\n";
+
+    });
+
+    message += "\nTOTAL: ₹" + total;
+
+    message += "\n\nPlease confirm my order.";
+
+
+    const whatsappURL =
+      "https://wa.me/" +
+      WHATSAPP_NUMBER +
+      "?text=" +
+      encodeURIComponent(message);
+
+
+    // CLEAR CART AFTER SUCCESSFUL SAVE
+    cart = [];
+
+    saveCart();
+
+    renderCart();
+
+
+    // CLEAR CUSTOMER FORM
+    nameElement.value = "";
+
+    phoneElement.value = "";
+
+    addressElement.value = "";
+
+
+    alert("Order saved successfully!");
+
+    // OPEN WHATSAPP
+    window.location.href = whatsappURL;
+
+  } catch (error) {
+
+    console.error("Order placement error:", error);
+
+    alert(
+      "Order could not be saved. Please try again.\n" +
+      error.message
+    );
+
   }
 
-  await window.saveOrderToFirebase(order);
-
-} catch (error) {
-  console.error("Order saving error:", error);
-  alert("Order could not be saved. Please try again.");
-  return;
-  }
-
-  
-  let message = "NEW POULTRYMART ORDER\n\n";
-  message += "Order ID: " + order.id + "\n";
-  message += "Name: " + name + "\n";
-  message += "Phone: " + phone + "\n";
-  message += "Address: " + address + "\n\n";
-  message += "ORDER DETAILS:\n";
-
-  cart.forEach(function(item) {
-    message += item.name + " - " + item.quantity + " " +
-      item.unit + " x ₹" + item.price + "\n";
-  });
-
-  message += "\nTOTAL: ₹" + total;
-  message += "\n\nPlease confirm this order.";
-
-  const url = "https://wa.me/" + WHATSAPP_NUMBER +
-    "?text=" + encodeURIComponent(message);
-
-  const whatsappWindow = window.open(url, "_blank");
-
-  if (!whatsappWindow) {
-    window.location.href = url;
-  }
-
-  cart = [];
-  saveCart();
-  renderCart();
-
-  document.getElementById("customerName").value = "";
-  document.getElementById("customerPhone").value = "";
-  document.getElementById("customerAddress").value = "";
-
-  alert("Order prepared! Please send the WhatsApp message to confirm it.");
 }
 
-// =====================================
-// INITIALIZE WEBSITE
-// =====================================
 
-renderProducts();
-updateCartCount();
-showPage("home");
+// ==================================================
+// 17. INITIALIZE WEBSITE
+// ==================================================
+
+document.addEventListener("DOMContentLoaded", function() {
+
+  loadCart();
+
+  updateCartCount();
+
+  renderProducts();
+
+  console.log("PoultryMart website loaded successfully.");
+
+});
