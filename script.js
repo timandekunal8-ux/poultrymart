@@ -225,8 +225,8 @@ function changeShopQuantity(id, amount) {
   }
 
   shopQuantities[id] = Math.max(
-    1,
-    shopQuantities[id] + amount
+    0.5,
+    Math.round((shopQuantities[id] + amount * 0.5) * 10) / 10
   );
 
   const display = document.getElementById("shopQty-" + id);
@@ -235,6 +235,9 @@ function changeShopQuantity(id, amount) {
     display.textContent = shopQuantities[id];
   }
 }
+
+
+ 
 
 
 // ==================================================
