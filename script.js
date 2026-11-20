@@ -83,6 +83,8 @@ function showPage(page) {
 // =====================================
 
 function renderProducts() {
+
+function renderProducts() {
   const list = document.getElementById("productList");
 
   list.innerHTML = products.map(function(product) {
@@ -92,15 +94,54 @@ function renderProducts() {
         <div class="product-info">
           <h3>${product.name}</h3>
           <p>Fresh quality poultry product</p>
-          <div class="price">₹${product.price} / ${product.unit}</div>
-          <button class="add-btn" onclick="addToCart(${product.id})">
-            Add to Cart +
+          <div class="price">
+            ₹${product.price} / ${product.unit}
+          </div>
+
+          <div class="quantity-selector">
+            <button onclick="changeShopQuantity(${product.id}, -1)">−</button>
+            <span id="shopQty-${product.id}">1</span>
+            <button onclick="changeShopQuantity(${product.id}, 1)">+</button>
+          </div>
+
+          <button class="add-btn"
+            onclick="addSelectedQuantity(${product.id})">
+            Add to Cart
           </button>
         </div>
       </div>
     `;
   }).join("");
 }
+
+// Store selected shop quantities
+const shopQuantities = {};
+
+function changeShopQuantity(id, amount) {
+  if (!shopQuantities[id]) shopQuantities[id] = 1;
+
+  shopQuantities[id] = Math.max(
+    1,
+    shopQuantities[id] + amount
+  );
+
+  document.getElementById("shopQty-" + id).textContent =
+    shopQuantities[id];
+}
+
+function addSelectedQuantity(id) {
+  const quantity = shopQuantities[id] || 1;
+
+  for (let i = 0; i < quantity; i++) {
+    addToCart(id);
+  }
+
+  shopQuantities[id] = 1;
+
+  const display = document.getElementById("shopQty-" + id);
+  if (display) display.textContent = "1";
+}
+
 
 // =====================================
 // CART
