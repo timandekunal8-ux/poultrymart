@@ -77,12 +77,11 @@ function showPage(page) {
     }
     
 
+ // =====================================
+ // PRODUCT DISPLAY
+ // =====================================
 
-// =====================================
-// PRODUCT DISPLAY
-// =====================================
-
-function renderProducts() {
+const shopQuantities = {};
 
 function renderProducts() {
   const list = document.getElementById("productList");
@@ -94,13 +93,16 @@ function renderProducts() {
         <div class="product-info">
           <h3>${product.name}</h3>
           <p>Fresh quality poultry product</p>
+
           <div class="price">
             ₹${product.price} / ${product.unit}
           </div>
 
           <div class="quantity-selector">
             <button onclick="changeShopQuantity(${product.id}, -1)">−</button>
-            <span id="shopQty-${product.id}">1</span>
+            <span id="shopQty-${product.id}">
+              ${shopQuantities[product.id] || 1}
+            </span>
             <button onclick="changeShopQuantity(${product.id}, 1)">+</button>
           </div>
 
@@ -114,33 +116,54 @@ function renderProducts() {
   }).join("");
 }
 
-// Store selected shop quantities
-const shopQuantities = {};
-
 function changeShopQuantity(id, amount) {
-  if (!shopQuantities[id]) shopQuantities[id] = 1;
+  if (!shopQuantities[id]) {
+    shopQuantities[id] = 1;
+  }
 
   shopQuantities[id] = Math.max(
     1,
     shopQuantities[id] + amount
   );
 
-  document.getElementById("shopQty-" + id).textContent =
-    shopQuantities[id];
+  const display = document.getElementById("shopQty-" + id);
+
+  if (display) {
+    display.textContent = shopQuantities[id];
+  }
 }
 
 function addSelectedQuantity(id) {
   const quantity = shopQuantities[id] || 1;
 
-  for (let i = 0; i < quantity; i++) {
-    addToCart(id);
+  const product = products.find(item => item.id === id);
+  if (!product) return;
+
+  const existing = cart.find(item => item.id === id);
+
+  if (existing) {
+    existing.quantity += quantity;
+  } else {
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      unit: product.unit,
+      quantity: quantity
+    });
   }
 
-  shopQuantities[id] = 1;
+  saveCart();
 
-  const display = document.getElementById("shopQty-" + id);
-  if (display) display.textContent = "1";
+  shopQuantities[id] = 1;
+  renderProducts();
+
+  alert(quantity + " " + product.unit + " added to cart!");
 }
+
+
+
+  
 
 
 // =====================================
