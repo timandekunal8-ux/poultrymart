@@ -158,7 +158,7 @@ function renderProducts() {
 
   list.innerHTML = products.map(function(product) {
 
-    const quantity = shopQuantities[product.id] || 1;
+    const quantity = shopQuantities[product.id] ?? 1;
 
     return `
       <div class="product-card">
@@ -220,13 +220,15 @@ function renderProducts() {
 
 function changeShopQuantity(id, amount) {
 
-  if (!shopQuantities[id]) {
+  if (shopQuantities[id] === undefined) {
     shopQuantities[id] = 1;
   }
 
   shopQuantities[id] = Math.max(
     0.5,
-    Math.round((shopQuantities[id] + amount * 0.5) * 10) / 10
+    Math.round(
+      (shopQuantities[id] + amount * 0.5) * 10
+    ) / 10
   );
 
   const display = document.getElementById("shopQty-" + id);
@@ -234,7 +236,11 @@ function changeShopQuantity(id, amount) {
   if (display) {
     display.textContent = shopQuantities[id];
   }
+
 }
+
+
+
 
 
  
