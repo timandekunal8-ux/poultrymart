@@ -220,15 +220,11 @@ function renderProducts() {
 
 function changeShopQuantity(id, amount) {
 
-  if (shopQuantities[id] === undefined) {
-    shopQuantities[id] = 1;
-  }
+  const current = shopQuantities[id] ?? 1;
 
   shopQuantities[id] = Math.max(
     0.5,
-    Math.round(
-      (shopQuantities[id] + amount * 0.5) * 10
-    ) / 10
+    Math.round((current + amount * 0.5) * 2) / 2
   );
 
   const display = document.getElementById("shopQty-" + id);
@@ -238,34 +234,24 @@ function changeShopQuantity(id, amount) {
   }
 
 }
-
-
-
-
-
- 
-
-
 // ==================================================
 // 10. ADD PRODUCT TO CART
 // ==================================================
-
 function addSelectedQuantity(id) {
 
   const product = products.find(item => item.id === id);
 
   if (!product) return;
 
-  const quantity = shopQuantities[id] || 1;
+  const quantity = shopQuantities[id] ?? 1;
 
   const existing = cart.find(item => item.id === id);
 
   if (existing) {
-
-    existing.quantity += quantity;
-
+    existing.quantity = Math.round(
+      (existing.quantity + quantity) * 2
+    ) / 2;
   } else {
-
     cart.push({
       id: product.id,
       name: product.name,
@@ -273,7 +259,6 @@ function addSelectedQuantity(id) {
       unit: product.unit,
       quantity: quantity
     });
-
   }
 
   saveCart();
@@ -283,6 +268,7 @@ function addSelectedQuantity(id) {
   renderProducts();
 
   alert(quantity + " " + product.unit + " added to cart!");
+
 }
 
 
@@ -369,7 +355,9 @@ function changeQuantity(id, amount) {
 
   if (!item) return;
 
-  item.quantity += amount;
+  item.quantity = Math.round(
+    (item.quantity + amount * 0.5) * 2
+  ) / 2;
 
   if (item.quantity <= 0) {
     cart = cart.filter(item => item.id !== id);
@@ -379,6 +367,8 @@ function changeQuantity(id, amount) {
 
   renderCart();
 }
+
+
 
 
 // ==================================================
